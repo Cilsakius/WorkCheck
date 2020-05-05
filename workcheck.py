@@ -151,7 +151,7 @@ class inputs(): #denne klasse samler inputs
             self.antalDage = input('Input the amount of workdays\n') #få nyt input
         self.workList = [] #laver en tom liste
         if int(self.antalDage) > 0:
-            print('Input according to the code dd-mm,TT:MM-TT:MM,TT:MM,S') #printer besked
+            print('Input according to the code dd-mm,HH:MM-HH:MM,HH:MM,B') #printer besked
             for x in range(int(self.antalDage)): #kører nedenstående den antal gange som tallet skrevet i antalDage
                 self.check = input('') # få input
                 while len(self.check) != 25: #er input ikke på 25 tegn
@@ -159,7 +159,6 @@ class inputs(): #denne klasse samler inputs
                     self.check = input('')# Få nyt input
                 self.workList.append(self.check) #tilføj til enden af listen workList
             return self.workList
-#05-10,07:20-13:50,00:30,0
 
     def settingsPay(self): #Denne metode samler input om hvad timelønnen er
         while True:#infinite loop
@@ -180,23 +179,24 @@ class inputs(): #denne klasse samler inputs
                 self.specialPayDay = int(self.specialPayDay)# at gøre input til en int
             except ValueError:#hvis det ikke kan
                 print("\nERROR - Input only one number that corresponds to an answer!\n")#print fejlbesked
-            while -1 < self.specialPayDay < 7: #hvis inputtet matcher en af de muligheder beskrevet før / hvis det er en int som er større end -1 og mindre end 7
-                self.specialPay = input("Input your additional hourly pay on this regular weekday\n")#få nyt input
-                try:#prøv
-                    self.specialPay = float(self.specialPay)#at gøre det til en float
-                except ValueError:#medmindre at der er ValueError
-                    print("\nERROR - Input only numbers and use dot as seperator!\n")#så print fejlbesked
+            else:
+                while -1 < self.specialPayDay < 7: #hvis inputtet matcher en af de muligheder beskrevet før / hvis det er en int som er større end -1 og mindre end 7
+                    self.specialPay = input("Input your additional hourly pay on this regular weekday\n")#få nyt input
+                    try:#prøv
+                        self.specialPay = float(self.specialPay)#at gøre det til en float
+                    except ValueError:#medmindre at der er ValueError
+                        print("\nERROR - Input only numbers and use dot as seperator!\n")#så print fejlbesked
+                    else:#ellers
+                        start.clear()#ryd compiler
+                        filing.fileWrite(self.specialPayDay, "a")#skriv ind i dokumentet her med "a" som et parameter sådan så det bare tilføjes til sidst i dokumentet
+                        filing.fileWrite(self.specialPay, "a")
+                        break
                 else:#ellers
-                    start.clear()#ryd compiler
-                    filing.fileWrite(self.specialPayDay, "a")#skriv ind i dokumentet her med "a" som et parameter sådan så det bare tilføjes til sidst i dokumentet
-                    filing.fileWrite(self.specialPay, "a")
+                    start.clear()#ryd
+                    filing.fileWrite("null", "a")#skriv null ind sådan så vores dokument altid overholder det samme antal linjer
+                    filing.fileWrite("null", "a")
                     break
-            else:#ellers
-                start.clear()#ryd
-                filing.fileWrite("null", "a")#skriv null ind sådan så vores dokument altid overholder det samme antal linjer
-                filing.fileWrite("null", "a")
                 break
-            break
 
     def settings1Hourday(self): # denne metode samler input omkring en dag hvor der modtages ekstra løn i nogle timer af dagen
         while True:#infinite loop
@@ -217,7 +217,7 @@ class inputs(): #denne klasse samler inputs
                         print("input the number correlating to the days on which you recieve this pay - 0 is Monday and 6 is Sunday")
                         for x in range(int(self.amountOfDays1)): # kør det antal gange som der blev skrevet i amountOfDays1
                             self.whatDays1 = input("") # få input
-                            while self.whatDays1.isnumeric() == False or 6 < int(self.whatDays1) or int(self.whatDays1)< 0: # imens det er et tal eller input er større end 6 eller mindre end 0
+                            while self.whatDays1.isnumeric() == False or 6 < int(self.whatDays1) or int(self.whatDays1)< 0: # imens det ikke er et tal eller input er større end 6 eller mindre end 0
                                 print("\nERROR - Try again\n")#print errrorcode
                                 self.whatDays1 = input("input the number correlating to the days on which you recieve this pay - 0 is Monday and 6 is Sunday\n")#få input igen
                             else: #ellers
@@ -262,7 +262,7 @@ class inputs(): #denne klasse samler inputs
                         print("input the number correlating to the days on which you recieve this pay - 0 is Monday and 6 is Sunday")
                         for x in range(int(self.amountOfDays2)):
                             self.whatDays2 = input("")
-                            while self.whatDays1.isnumeric() == False or 6 < int(self.whatDays1) or int(self.whatDays1)< 0: # imens det er et tal eller input er større end 6 eller mindre end 0
+                            while self.whatDays2.isnumeric() == False or 6 < int(self.whatDays2) or int(self.whatDays2)< 0: # imens det ikke er et tal eller input er større end 6 eller mindre end 0
                                 print("\nERROR - Try again\n")
                                 self.whatDays2 = input("input the number correlating to the days on which you recieve this pay - 0 is Monday and 6 is Sunday\n")
                             else:#ellers
