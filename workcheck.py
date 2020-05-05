@@ -49,10 +49,7 @@ class structure(): #denne klasse styrer struktur
                 self.splittedlist = split.main(str(self.workDayList[self.listNumber]), ",")# kør funktionen split.main med elementet med nummeret listnumber fra worklist konverteret til en string
                 #nu er formatet en liste og ser sådan ud 05-10 07:20-13:50 00:30 0
                 self.splittedHours = split.main(self.splittedlist[1], '-') #splitter et element fra en liste fra HH:MM-HH:MM til 'HH:MM','HH:MM'
-                if filing.fileRead(2) == "null" and filing.fileRead(4) == "null": # hvis disse to elementer retunerer som "null" modtager brugeren ikke nogen tillæg på nogen dage
-                    self.addPay = float(0) #gør addpay til et 0 af typen float
-                else: #ellers kører de to nedenstående funktioner
-                    self.addPay = calculate.addPayCheck(self.splittedlist[0],self.splittedlist[1], calculate.holidayCheck(self.splittedlist[3]), datetime.datetime.now().year) #denne variabel indholder en float værdi som udregnes af addPayCheck
+                self.addPay = calculate.addPayCheck(self.splittedlist[0],self.splittedlist[1], calculate.holidayCheck(self.splittedlist[3]), datetime.datetime.now().year) #denne variabel indholder en float værdi som udregnes af addPayCheck
                 self.decimalDeltaTime = calculate.timeDecimal(calculate.timeDif(self.splittedHours[0],self.splittedHours[1]))#denne variabel indeholder tidsdifferencen(som der modtages som parameter) konverteret til decimaler
                 self.pauseDecimal = calculate.timeDecimal(self.splittedlist[2]+":00")#denne variabel indeholder pausen omregnet til decimaler
                 self.dayTuple = calculate.oneDay(self.decimalDeltaTime, self.pauseDecimal, self.addPay)#denne tuple indeholder 3 elementer som nedenfor appendes til den korrekte liste
@@ -331,7 +328,7 @@ class filing():#denne klasse håndterer filer
                 if self.Sfile4 == "null\n":
                     self.RSfile = "null"
                 else:
-                    self.RSfile = float(self.Sfile4)#int
+                    self.RSfile = float(self.Sfile4)
             elif line == 5:
                 if self.Sfile5 == "null\n":
                     self.RSfile = "null"
@@ -391,4 +388,5 @@ calculate = calculating()
 inputs = inputs()
 filing = filing()
 output = output()
-start.menu()
+if __name__ == '__main__':
+    start.menu()
