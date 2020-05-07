@@ -76,33 +76,37 @@ class calculating(): #denne klasse udregner
 
     def addPayCheck(self, date, shiftHours, holidayBool, currentYear): #denne metode udregner ekstra tillæg og retunerer det
         self.totalAddPay = 0
-        self.weekDay = calculate.WeekdayCheck(date, currentYear) #denne variabel indeholder et tal der repræsenterer en ugedag, 0=mandag og 6=søndag
+        self.weekDay = str(calculate.WeekdayCheck(date, currentYear)) #denne variabel indeholder et tal der repræsenterer en ugedag, 0=mandag og 6=søndag
         self.dayHour1 = split.main(filing.fileRead(6), '-')#indeholder tidspunkter for specialtid som brugeren har sat i settings
         self.dayHour2 = split.main(filing.fileRead(9), '-') #indeholder et andet tidspunkter for specialtid
         self.shift = split.main(shiftHours, '-') #denne variavel indeholder en liste over hvornår der mødes [0] og hvornår der er fyraften [1]
-        if holidayBool == True or filing.fileRead(2) != "null" and self.weekDay == int(filing.fileRead(2)): #hvis parammeteret holidayBool er sand eller ugedagen er det samme som fileread(2)
+        if holidayBool == True or filing.fileRead(2) != "null" and self.weekDay == str(filing.fileRead(2)): #hvis parammeteret holidayBool er sand eller ugedagen er det samme som fileread(2)
             self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0],self.shift[1]))#udregn tidsdifferencen mellem hvornår der mødtes på arbejde og hvornår der er fyraften, dette kunne egentligt bare modtages i parameteren da det allerede er udregnet
             self.totalAddPay = self.delta * filing.fileRead(3)#udregner det totale tillæg ud fra tidsdecimalerne og lønningen
         elif filing.fileRead(4) != "null" and self.weekDay in filing.fileRead(5): # hvis den givne dag er i listen af dage og dermed er omfattet af specielløn
-            if self.dayHour1[0] < self.shift[0] < self.dayHour1[1] and self.dayHour1[0] < self.shift[0] < self.dayHour1[1]: #hvis både mødetiden og fyraften ligger inden for de specielle løntimer
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.shift[1])) #udregn tiden mellem fremmøde og fyraften
-            elif self.dayHour1[0] < self.shift[0] < self.dayHour1[1] and self.shift[0] > self.dayHour1[1]: #hvis fyraften er større end specieltid og mødetid er imellem
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.dayHour1[1])) #udregn tiden mellem fremmøde og tiden specieltid slutter
-            elif self.shift[0] < self.dayHour1[0] and self.dayHour1[0] < self.shift[0] < self.dayHour1[1]: #hvis mødetid er før specieltid og fyraften er imellem
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour1[0],self.shift[1])) #udregn tiden mellem specieltids start og fyraften
-            elif self.shift[0] < self.dayHour1[0] and self.shift[1] > self.dayHour1[1]:# hvis mødetid er før specieltid og fyraften er efter
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour1[0], self.dayHour1[1]))# udregn tiden mellem specieltids start og slut
+            if self.dayHour1[0] < self.shift[0] < self.dayHour1[1] or self.shift[0] == self.dayHour1[0]: # hvis mødetid er imellem eller lig med
+                if self.dayHour1[0] < self.shift[1] < self.dayHour1[1] or self.shift[1] == self.dayHour1[1]: #hvis fyraften ligger inden for de specielle løntimer eller er lig med løntimeslut
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.shift[1])) #udregn tiden mellem fremmøde og fyraften
+                elif self.shift[1] > self.dayHour1[1]: #hvis fyraften er større end specieltid
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.dayHour1[1])) #udregn tiden mellem fremmøde og tiden specieltid slutter
+            elif self.shift[0] < self.dayHour1[0]: #hvis mødetid er før special lønnens starttid
+                if self.dayHour1[0] < self.shift[1] < self.dayHour1[1] or self.shift[1] == self.dayHour1[1]: # hvis fyraften er imellem eller lig med
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour1[0],self.shift[1])) #udregn tiden mellem specieltids start og fyraften
+                elif self.shift[1] > self.dayHour1[1]:# hvis fyraften er efter specialtid
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour1[0], self.dayHour1[1]))# udregn tiden mellem specieltids start og slut
             self.totalAddPay = self.delta * filing.fileRead(4)#udregn det totale tillæg ud fra tidsdecimalet * lønningen
             #ellers rammer hverken mødetid eller fyraften tidsrummet omkring specialtid og så skal der ikke tilføjes ekstra timeløn
         elif filing.fileRead(7) != "null" and self.weekDay in filing.fileRead(8): # hvis den givne dag er i listen af dage og dermed er omfattet af specielløn
-            if self.dayHour2[0] < self.shift[0] < self.dayHour2[1] and self.dayHour2[0] < self.shift[0] < self.dayHour2[1]: #hvis både mødetiden og fyraften ligger inden for de specielle løntimer
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.shift[1]))#udregn tiden mellem fremmøde og fyraften
-            elif self.dayHour2[0] < self.shift[0] < self.dayHour2[1] and self.shift[0] > self.dayHour2[1]: #hvis fyraften er større end specieltid og mødetid er imellem
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.dayHour2[1]))#udregn tiden mellem fremmøde og tiden specieltid slutter
-            elif self.shift[0] < self.dayHour2[0] and self.dayHour2[0] < self.shift[0] < self.dayHour2[1]: #hvis mødetid er før specieltid og fyraften er imellem
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour2[0],self.shift[1]))#udregn tiden mellem specieltids start og fyraften
-            elif self.time[0] < self.dayHour2[0] and self.shift[1] > self.dayHour2[1]:# hvis mødetid er før specieltid og fyraften er efter
-                self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour2[0], self.dayHour2[1]))# udregn tiden mellem specieltids start og slut
+            if self.dayHour2[0] < self.shift[0] < self.dayHour2[1] or self.shift[0] == self.dayHour2[0]: # hvis mødetid er imellem eller lig med
+                if self.dayHour2[0] < self.shift[1] < self.dayHour2[1] or self.shift[1] == self.dayHour2[1]: #hvis fyraften ligger inden for de specielle løntimer eller er lig med
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.shift[1]))#udregn tiden mellem fremmøde og fyraften
+                elif self.shift[1] > self.dayHour2[1]: #hvis fyraften er større end specieltid
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.shift[0], self.dayHour2[1]))#udregn tiden mellem fremmøde og tiden specieltid slutter
+            elif self.shift[0] < self.dayHour2[0]:#hvis mødetid er før specialtids start
+                if self.dayHour2[0] < self.shift[1] < self.dayHour2[1] or self.shift[1] == self.dayHour2[1]: #hvis fyraften er imellem
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour2[0],self.shift[1]))#udregn tiden mellem specieltids start og fyraften
+                elif self.shift[1] > self.dayHour2[1]:# hvis fyraften er efter
+                    self.delta = calculate.timeDecimal(calculate.timeDif(self.dayHour2[0], self.dayHour2[1]))# udregn tiden mellem specieltids start og slut
             self.totalAddPay = self.delta * filing.fileRead(7)#udregn det totale tillæg ud fra tidsdecimalet * lønningen
         return self.totalAddPay#retuner tillægget
 
@@ -283,7 +287,7 @@ class inputs(): #denne klasse samler inputs
                 break
 
 
-class filing():#denne klasse håndterer filer
+class files():#denne klasse håndterer filer
 
     def fileWrite(self,input,openType):# denne metode kaldes med 2 parameter, en string som der skal gemmes og en opentype som f.eks. kan være "w" hvor den så overskriver dokumentet eller "a" hvor den så appender til dokumentet
         self.Sfile = open("settings.txt", openType) #åbner filen settings.txt for at gøre hvad end der står i opentype typisk vil det her være "w" for write eller "a" for append
@@ -295,7 +299,6 @@ class filing():#denne klasse håndterer filer
         try:
             self.Sfile = open("settings.txt", "r") # åbner dokumentet med "r" som står for read
         except FileNotFoundError:
-            start.clear()
             return None
         else:
             self.Sfile1 = self.Sfile.readline() #her læser vi den første linje
@@ -338,7 +341,7 @@ class filing():#denne klasse håndterer filer
                 if self.Sfile6 == "null\n":
                     self.RSfile = "null"
                 else:
-                    self.RSfile = self.Sfile6#bevares som string
+                    self.RSfile = self.Sfile6.strip("\n")#bevares som string men får fjernet \n
             elif line == 7:
                 if self.Sfile7 == "null\n":
                     self.RSfile = "null"
@@ -353,7 +356,7 @@ class filing():#denne klasse håndterer filer
                 if self.Sfile9 == "null\n":
                     self.RSfile = "null"
                 else:
-                    self.RSfile = self.Sfile9#bevares som string
+                    self.RSfile = self.Sfile9.strip("\n")#bevares som string men får fjernet \n
             elif line == 10: #denne linje behøver vi ikke tjekke om er null fordi hvis den ikke er true findes den ikke
                 self.RSfile = self.Sfile10
             self.Sfile.close()#så lukker vi dokumentet
@@ -386,7 +389,7 @@ start = structure()
 split = splitting()
 calculate = calculating()
 inputs = inputs()
-filing = filing()
+filing = files()
 output = output()
 if __name__ == '__main__':
     start.menu()
